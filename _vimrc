@@ -1,0 +1,171 @@
+source $VIMRUNTIME/vimrc_example.vim
+source $VIMRUNTIME/mswin.vim
+behave mswin
+
+filetype on
+syntax on
+set nows
+
+let g:session_autoload = 'no'
+colorscheme desert
+set nowrapscan  " 처음부터 다시 찾는거 안하기
+set autoindent 	" 요건 지워야 할까 말아야 할까 고민좀 하고
+set noautochdir
+set lines=100
+set columns=80
+set nu
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set guifont=consolas:h11:cHANGEUL
+"set guifontwide=Dotumche:h10:cDEFAULT
+set encoding=cp949
+set fileencodings=utf-8,cp949
+set langmenu=cp949
+"set guifont=Gulimche:h12:cHANGEUL
+set nobackup
+set noswapfile
+set expandtab " tab 
+set ts=3      " tab to space 3
+
+set ic 		" 찾기에서 대소문자 구분 없음
+"set noic 	" 찾기에서 대소문자 구분
+
+"==============================================================================
+" ctags setting - Before setting, you must install ctags
+set tags=./tags,tags
+set tags+=../tags,../../tags
+let Tlist_Show_One_File = 1
+if version >= 500
+
+func! Sts()
+        let st = expand("<cword>")
+        exe "sts ".st
+endfunc
+nmap ,st :call Sts()<CR>
+
+func! Tj()
+        let st = expand("<cword>")
+        exe "tj ".st
+endfunc
+nmap ,tj :call Tj()<CR>
+
+" cs find s : find C symbol
+func! Ccc()
+        let st = expand("<cword>")
+        exe "cs find s ".st
+endfunc
+nmap ,cc :call Ccc()<CR>
+
+" cs find g : find this definition
+func! Cdf()
+    let st = expand("<cword>")
+    exe "cs find g ".st
+endfunc
+nmap ,cd :call Cdf()<CR>
+endif
+"==============================================================================
+
+
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      if empty(&shellxquote)
+        let l:shxq_sav = ''
+        set shellxquote&
+      endif
+      let cmd = '"' . $VIMRUNTIME . '\diff"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3
+  if exists('l:shxq_sav')
+    let &shellxquote=l:shxq_sav
+  endif
+endfunction
+
+" ---- KEY binding 
+" TList setting - Before setting, you must install TagList in VIM web site.
+map <F2> :Tlist<CR>
+" For windows, copy & paste key binding.
+map <C-c> "+y
+map <C-v> "+P
+"folding on off
+"map <SPACE> za 
+map <C-0> zf
+
+
+"==============================================================================
+" TagList
+let Tlist_Use_Right_Window   = 1
+let tlist_c_settings='c;f:function'
+
+"==============================================================================
+" cscope
+if filereadable("./cscope.out")
+    cs add cscope.out
+endif
+
+"==============================================================================
+" SrcExpl 
+" // The switch of the Source Explorer 
+nmap <F8> :SrcExplToggle<CR> 
+
+" // Set the height of Source Explorer window 
+let g:SrcExpl_winHeight = 8 
+
+" // Set 100 ms for refreshing the Source Explorer 
+let g:SrcExpl_refreshTime = 100 
+
+" // Set "Enter" key to jump into the exact definition context 
+let g:SrcExpl_jumpKey = "<ENTER>" 
+
+" // Set "Space" key for back from the definition context 
+let g:SrcExpl_gobackKey = "<SPACE>" 
+
+" // In order to avoid conflicts, the Source Explorer should know what plugins
+" // except itself are using buffers. And you need add their buffer names into
+" // below listaccording to the command ":buffers!"
+let g:SrcExpl_pluginList = [ 
+        \ "__Tag_List__", 
+        \ "_NERD_tree_" 
+    \ ] 
+
+" // Enable/Disable the local definition searching, and note that this is not 
+" // guaranteed to work, the Source Explorer doesn't check the syntax for now. 
+" // It only searches for a match with the keyword according to command 'gd' 
+let g:SrcExpl_searchLocalDef = 1 
+
+" // Do not let the Source Explorer update the tags file when opening 
+let g:SrcExpl_isUpdateTags = 0 
+
+" // Use 'Exuberant Ctags' with '--sort=foldcase -R .' or '-L cscope.files' to 
+" // create/update the tags file 
+"let g:SrcExpl_updateTagsCmd = "ctags --sort=foldcase -R ." 
+let g:SrcExpl_updateTagsCmd = "ctags -L cscope.files" 
+
+" // Set "<F12>" key for updating the tags file artificially 
+let g:SrcExpl_updateTagsKey = "<F12>" 
+
+" // Set "<F3>" key for displaying the previous definition in the jump list 
+let g:SrcExpl_prevDefKey = "<F3>" 
+
+" // Set "<F4>" key for displaying the next definition in the jump list 
+let g:SrcExpl_nextDefKey = "<F4>" 
+
+"==============================================================================
+" BufExplorer
+map <F5> :BufExplorer<CR>
